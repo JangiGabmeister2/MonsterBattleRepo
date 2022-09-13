@@ -9,7 +9,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{3123F1AF-546D-4730-0A5B-745922733457}</ProjectGuid>
+    <ProjectGuid>{9152866A-2893-10B6-773C-52670AA11941}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -56,11 +56,8 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\GameStates.cs" />
-    <Compile Include="Assets\Scripts\FighterInfo.cs" />
-    <Compile Include="Assets\Scripts\PlayerInfo.cs" />
-    <Compile Include="Assets\Scripts\EnemyInfo.cs" />
-    <Compile Include="Assets\Scripts\GameSequence.cs" />
+    <Compile Include="Assets\MonsterBattler\Scripts\StatusChangeAI.cs" />
+    <Compile Include="Assets\MonsterBattler\Scripts\FighterInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
