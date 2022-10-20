@@ -2,217 +2,135 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public enum GameStates { setup, player, enemy, win, lose } //game states
-public enum EnemyStates { neutral, attacking, healing, blocking } //enemy states
+public enum GameStates { player, enemy, win, lose } //game states
+public enum EnemyStates { attacking, healing} //enemy states
 
-[RequireComponent(typeof(Enemy))]
 public class GameSystem : MonoBehaviour
 {
     #region Variables
-    [Header("Fighters")]
-    public GameObject player;
-    public GameObject enemy;
-
-    [Header("Action Text")]
-    public Text actionText;
-
-    [Header("Fighter Placements")]
-    public Transform playerPosition;
-    public Transform enemyPosition;
-
-    [Header("Health Texts")]
-    public SetHealth playerHealth;
-    public SetHealth enemyHealth;
+    [Header("Action Texts")]
+    public Text enemyStatesText;
+    public Text gameStatesText;
 
     [Header("Action Buttons")]
     public Button healButton;
     public Button damageButton;
 
-    private FighterInfo _playerFighter;
-    private FighterInfo _enemyFighter;
-
-    private bool isPlayerDead;
-    private bool isEnemyDead;
-
     [Header("Current States")]
-    public GameStates state;
+    public GameStates gameState;
     public EnemyStates enemyState;
+
+    public bool isPlayerTurn;
+
+    private PlayerFighter _player;
+    private EnemyFighter _enemy;
     #endregion
 
     public void Start()
     {
-        state = GameStates.setup; //sets game state to setting up info and fighter prefabs
-        enemyState = EnemyStates.neutral; //sets enemy state to neutral
-        StartCoroutine(SetupFight());
+        gameState = GameStates.player;
+        enemyState = EnemyStates.attacking;
+
+        NextEnemyState();
+        NextGameState();
+
+        isPlayerTurn = true;
+
+        enemyStatesText.text = "Enemy State: Attack";
+        gameStatesText.text = "Game State: Your Turn";
     }
 
     #region States
-    #region Game States
-    public IEnumerator SetupFight()
+    public void NextGameState()
     {
-        GameObject playerGO = Instantiate(player, playerPosition); //instantiates playe rprefab
-        _playerFighter = playerGO.GetComponent<FighterInfo>();
-
-        GameObject enemyGO = Instantiate(enemy, enemyPosition); //instantiates enemy prefab
-        _enemyFighter = enemyGO.GetComponent<FighterInfo>();
-
-        actionText.text = "Player   VS   Monster"; //sets action text
-
-        playerHealth.SetupHealth(_playerFighter); //sets player and enemy healths
-        enemyHealth.SetupHealth(_enemyFighter);
-
-        healButton.enabled = false; //disables buttons before match
-        damageButton.enabled = false;
-
-        yield return new WaitForSeconds(5f); //waits for 5 seconds
-
-        state = GameStates.player; //switches game state to player's turn
-        StartCoroutine(PlayerTurn());
+        switch (gameState)
+        {
+            case GameStates.player:
+                StartCoroutine(PlayerTurn());
+                break;
+            case GameStates.enemy:
+                StartCoroutine(EnemyTurn());
+                break;
+            case GameStates.win:
+                StartCoroutine(Win());
+                break;
+            case GameStates.lose:
+                StartCoroutine(Lose());
+                break;
+            default:
+                break;
+        }
     }
 
+    public void NextEnemyState()
+    {
+        switch (enemyState)
+        {
+            case EnemyStates.attacking:
+                StartCoroutine(Attack());
+                break;
+            case EnemyStates.healing:
+                StartCoroutine(Healng());
+                break;
+            default:
+                break;
+        }
+    }
+
+    #region Game States
     public IEnumerator PlayerTurn()
     {
-        while (state == GameStates.player)
+        while (gameState == GameStates.player && isPlayerTurn)
         {
-            actionText.text = "Choose an action...";
-            healButton.enabled = true; //if it is player's turn, buttons become enabled, so player can click on them
+            healButton.enabled = true;
             damageButton.enabled = true;
         }
-
-        healButton.enabled = false; //after player's turn, buttons become disabled, to prevent cheating
-        damageButton.enabled = false;
-
-        isEnemyDead = _enemyFighter.Damage(_playerFighter.damage); //tests if damage unto enemy killed it
-
-        if (isEnemyDead)
-        {
-            state = GameStates.win; //if enemy is dead, player wins game 
-        }
-        else
-        {
-            state = GameStates.enemy; //or else enemy's turn next
-        }
-
-        yield return new WaitForSeconds(5f);
+        yield return null;
     }
+
     public IEnumerator EnemyTurn()
     {
-        while (state == GameStates.enemy)
+        while (gameState == GameStates.enemy && !isPlayerTurn)
         {
-            actionText.text = "The Monster is choosing an action...";
-            StartCoroutine(ChooseAction()); //starts decision making time - choose an action depending on their health status
-            switch (enemyState)
-            {
-                case EnemyStates.attacking: //if attacking, attacks player
-                    actionText.text = "The Monster attacked you!";
-                    break;
-                case EnemyStates.healing: //if healing, heals self
-                    actionText.text = "The Monster healed!";
-                    break;
-                case EnemyStates.blocking: //if blocking, blocks next player attack, if they attack, expires after player's turn
-                    actionText.text = "The Monster is blocking!";
-                    break;
-                default:
-                    break;
-            }
+
         }
 
-        isPlayerDead = _playerFighter.Damage(_enemyFighter.damage); //checks if player is killed
-
-        if (isPlayerDead)
-        {
-            state = GameStates.lose; //if player is dead, player loses game
-        }
-        else
-        {
-            state = GameStates.player; //else player's turn next
-        }
-
-        yield return new WaitForSeconds(5f);
+        yield return null;
     }
-    public IEnumerator PlayerWin()
+    public IEnumerator Win()
     {
-        while(state == GameStates.win)
-        {
-            actionText.text = "You have won! Game will close in 5 seconds.";
-        }
-        yield return new WaitForSeconds(5f);
-        EndGame();
+        yield return null;
     }
-    public IEnumerator PlayerLose()
+
+    public IEnumerator Lose()
     {
-        while (state == GameStates.lose)
-        {
-            actionText.text = "You have lost! Game will close in 5 seconds.";
-        }
-        yield return new WaitForSeconds(5f);
-        EndGame();
+        yield return null;
     }
     #endregion
     #region Enemy States
-    public IEnumerator Blocking()
+    public IEnumerator Attack()
     {
-        while (enemyState == EnemyStates.blocking)
-        {
-            _enemyFighter.Block(_playerFighter.damage, _playerFighter.damage);
-        }
         yield return null;
     }
-    public IEnumerator Attacking()
-    {
-        while (enemyState == EnemyStates.attacking)
-        {
-            _enemyFighter.Damage(_enemyFighter.damage);
-        }
-        yield return null;
-    }
-    public IEnumerator Healing()
+
+    public IEnumerator Healng()
     {
         yield return null;
     }
     #endregion
     #endregion
 
-    IEnumerator ChooseAction()
+    public IEnumerator DecideAction()
     {
-        if (_enemyFighter.health >= (_enemyFighter.maxHealth / 2)) //if enemy health >= 50%, starts attacking
-        {
-            StartCoroutine(Attacking());
-        }
-        else //if enemy health < 50%, starts healing
-        {
-            StartCoroutine(Healing());
-        }
-
-        if (_playerFighter.health >= (_playerFighter.maxHealth / 2) && _enemyFighter.health < (_enemyFighter.maxHealth / 2)) //if enemy health < 50% and player health > 50%
-        {
-            StartCoroutine(Blocking()); //then starts blocking
-        }
         yield return null;
     }
 
-    public void OnDamage()
+    public void OnButtonClick()
     {
-        if (state != GameStates.player)
-        {
-            return;
-        }
-    }
+        healButton.enabled = false;
+        damageButton.enabled = false;
 
-    public void OnHeal()
-    {
-        if (state != GameStates.player)
-        {
-            return;
-        }
-    }
 
-    public void OnBlock()
-    {
-        if (state != GameStates.player)
-        {
-            return;
-        }
     }
 
     public void EndGame()

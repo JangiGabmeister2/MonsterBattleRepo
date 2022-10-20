@@ -8,21 +8,17 @@ public class FighterInfo : MonoBehaviour
     public int health;
     public int maxHealth;
 
-    [Header("Amounts")]
-    public int heal;
-    public int damage;
+    public Text healthText;
 
-    public bool Damage(int damageAmount)
+    public void Damage(int damageAmount)
     {
         if (health - damageAmount < 0)
         {
             health = 0;
-            return true;
         }
         else
         {
             health -= damageAmount;
-            return false;
         }
     }
 
@@ -39,8 +35,8 @@ public class FighterInfo : MonoBehaviour
         }
     }
 
-    public void Block(int blockAmount, int damage)
+    public void Update()
     {
-        blockAmount -= damage;
+        healthText.text = $"Health: {health} / {maxHealth}";
     }
 }
