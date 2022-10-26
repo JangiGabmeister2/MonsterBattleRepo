@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerFighter : FighterInfo
+public class PlayerFighter : HealDamage
 {
     public bool isDead()
     {
